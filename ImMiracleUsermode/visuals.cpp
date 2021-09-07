@@ -1,6 +1,18 @@
 #include "visuals.hpp"
 #include "overlay.h"
 
+
+#include "E:\Desktop\HttpInterface-master\IHttp\IHttp\IHttpInterface.h"
+
+#ifdef _DEBUG
+#pragma comment(lib, "E:/Desktop/HttpInterface-master/IHttp/lib/IHttpD.lib")
+#else
+#pragma comment(lib, "E:/Desktop/HttpInterface-master/IHttp/lib/IHttp.lib")
+#endif
+#include <crtdbg.h>
+#include <Windows.h>
+
+
 #include "memory.hpp"
 #include <string>
 #include "math.hpp"
@@ -58,6 +70,55 @@ void drawHealth(uint64_t instance, vec2 headPos,vec2 location)
 
 }
 
+bool TestWinHttp()
+{
+	IWinHttp* pHttp;
+
+	
+
+	bool bRet = CreateInstance((IHttpBase**)&pHttp, TypeWinHttp);
+	if (!bRet)
+	{
+		return false;
+	}
+
+	//添加自定义http头信息
+	pHttp->AddHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+	pHttp->AddHeader("Accept-Encoding", "gzip, deflate, br");
+	pHttp->AddHeader("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8");
+	pHttp->AddHeader("Cache-Control", "keep-alive");
+	pHttp->AddHeader("Content-Type", "application/json;charset=UTF-8");
+	pHttp->AddHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36");
+
+	string postRequest = "[";
+
+	for (auto& player : EFTData::Instance()->players)
+	{
+		string name = "enemy";
+
+		if (player.instance == EFTData::Instance()->localPlayer.instance)
+		{
+			name = "player";
+		}
+		postRequest += "{\"name\":\"" + name + "\",\"x\":" + std::to_string(player.location.x) + ",\"y\":" + std::to_string(player.location.y) + ",\"z\":" + std::to_string(player.location.z) + "},";
+	}
+	postRequest += "{\"name:\":\"test\",\"x\":-99990,\"y\":-99990,\"z\":-99990}]";
+
+
+	
+
+	//printf("%s", postRequest.c_str());
+
+	//测试post请求
+	std::string ret = pHttp->Request("http://localhost:8080/testInterface", HttpPost, postRequest.c_str());
+
+	//printf("%s\n", ret.c_str());
+
+	pHttp->FreeInstance();
+
+	return true;
+}
+
 void PRENDER::Render()
 {
 
@@ -85,13 +146,14 @@ void PRENDER::Render()
 			{
 				continue;
 			}
-			if (player.instance == local_player.instance)
+			/*if (player.instance == local_player.instance)
 			{
 				continue;
-			}
+			}*/
 
-
-		
+			//websocket
+			TestWinHttp();
+			
 
 			//EFTData::Instance()->DrawSkeleton(player.instance);
 
@@ -102,10 +164,40 @@ void PRENDER::Render()
 
 			if (distance <= 150.f)
 				color = D3DCOLOR_ARGB(77, 0, 255, 230); //color red, if less than 150m
-			else if (distance > 150.f && distance <= 380.f)
+			else if (distance > 150.f && distance <= 500.f)
 				color = D3DCOLOR_ARGB(33, 130, 236, 33); //color yellow, if less than 300m and greater than 150m
 
 			vec2 screen_pos;
+
+			/*
+			uint64_t playerProfile = driver_control::Read<uint64_t>(player.instance + 0x440, EFTData::Instance()->process_id);
+			uint64_t playerInfo = driver_control::Read<uint64_t>(playerProfile + 0x28, EFTData::Instance()->process_id);
+
+			uint64_t player_name_ptr = driver_control::Read<uint64_t>(playerInfo + 0x10, EFTData::Instance()->process_id);
+
+			std::array<char, 128> name_buffer;
+		
+			if (auto name_ptr = driver_control::Read<uint64_t>(player_name_ptr, EFTData::Instance()->process_id))
+			{
+					name_buffer = driver_control::Read<array<char,128>>(player_name_ptr + 0x14, EFTData::Instance()->process_id);
+			}
+
+			name_buffer[128] = '\0';
+
+			std::array<char, 128> nameLa;
+
+			for (int i = 0; i < 128; i+=2)
+			{
+				nameLa[i] = name_buffer[i];
+			}
+		
+			
+			const char* abc = nameLa.data();
+
+			printf("%s\n", abc);
+
+			printf("===========================\n");
+			*/
 
 			//DrawDistance
 			if (EFTData::Instance()->world_to_screen(player.location, screen_pos, EFTData::Instance()->viewMatrix))

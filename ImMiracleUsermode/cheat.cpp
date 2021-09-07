@@ -241,7 +241,12 @@ boolean EFTData::read()
 	}
 
 	uint64_t list_base_2 = driver_control::Read<uint64_t>(lootList + offsetof(EFTStructs::List, listBase), process_id);
-	uint32_t loot_count = driver_control::Read<uint32_t>(lootList + offsetof(EFTStructs::List, itemCount), process_id);
+	uint32_t loot_count;/* = driver_control::Read<uint32_t>(lootList + offsetof(EFTStructs::List, itemCount), process_id);*/
+
+	loot_count = driver_control::readbuffer(lootList + offsetof(EFTStructs::List, itemCount),&loot_count, sizeof(loot_count), process_id);
+
+
+	
 	if (loot_count <= 0 || !list_base_2)
 	{
 		return false;
@@ -362,8 +367,6 @@ uint64_t EFTData::GetObjectFromList(uint64_t listPtr, uint64_t lastObjectPtr, co
 
 	return uint64_t();
 }
-
-
 
 
 

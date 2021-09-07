@@ -209,8 +209,6 @@ public:
 
 	uint64_t get_mpcamera(uint64_t instance);
 	D3DXMATRIX getoptic_matrix(uint64_t instance);
-
-
 };
 
 enum Bones : int

@@ -12,6 +12,8 @@ using namespace std;
 auto pRender = PRENDER::Instance();
 auto gameData = EFTData::Instance();
 
+RECT tSize;
+
 
 char* lootAllChar = "¹Ø±Õ";
 char* lootAll2Char = "¸ß¼¶";
@@ -202,7 +204,7 @@ void start_window()
 	wndclass.lpszClassName = "Class_RiotWnd";
 	RegisterClassEx(&wndclass);
 
-	hWnd = CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT, wndclass.lpszClassName, "", WS_POPUP, rc.left, rc.top, s_width, s_height, NULL, NULL, wndclass.hInstance, NULL);
+	hWnd = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT | WS_EX_LAYERED, wndclass.lpszClassName, "", WS_POPUP, rc.left, rc.top, s_width, s_height, NULL, NULL, wndclass.hInstance, NULL);
 
 	// Activate transparency on color black.
 	/*SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 0, ULW_COLORKEY);
@@ -253,8 +255,11 @@ uint32_t EntryMode()
 		if (msg.message == WM_QUIT)
 			exit(0);
 
-		SetWindowPos(twnd, hWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-		UpdateWindow(hWnd);
+		//reason of low fps 
+		/*SetWindowPos(twnd, hWnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+		UpdateWindow(hWnd);*/
+		GetWindowRect(hWnd, &tSize);
+		MoveWindow(hWnd, tSize.left, tSize.top, s_width, s_height, true);
 		
 
 		if (!gameData->read())
@@ -266,7 +271,7 @@ uint32_t EntryMode()
 		//render your esp
 		render_scene();
 
-		Sleep(2);
+		Sleep(4);
 	}
 	return 0;
 }

@@ -91,5 +91,11 @@ uint32_t driver_control::readbuffer(uint64_t address, PVOID buffer, size_t size,
 {
 	if (address == 0)
 		return false;
-	return copy_memory(address, process_id, uintptr_t(buffer), size);
+
+	buffer = (PVOID)copy_memory(address, process_id, uintptr_t(&buffer), size);
+
+
+
+	return 0x1;
 }
+
